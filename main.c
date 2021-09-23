@@ -16,7 +16,7 @@ Group 8: Eliot Partridge, Kent Templin
 
 /**
  * Prints useful details about a given superblock
- * 
+ *
  * @param sb The superblock to print details for
  */
 void print_superblock(struct ext3_super_block *sb) {

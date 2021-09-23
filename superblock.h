@@ -9,7 +9,7 @@
 
 /**
  * EXT3 superblock structure
- * 
+ *
  * (at least, all the fields that are interesting)
  */
 struct ext3_super_block {
@@ -43,7 +43,7 @@ struct ext3_super_block {
 
 /**
  * Read an EXT3 superblock from the given byte location on disk
- * 
+ *
  * @param file The block device to read from
  * @param offset The offset from the start of the disk to read from
  * @param sb The superblock to fill in
