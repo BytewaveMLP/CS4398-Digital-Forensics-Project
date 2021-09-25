@@ -1,11 +1,14 @@
 #ifndef SUPERBLOCK_H
 #define SUPERBLOCK_H
 
+#define _FILE_OFFSET_BITS 64
+#define _POSIX_C_SOURCE 200112L
+
 #include <stdint.h>
 #include <stdio.h>
 
 // EXT2/3/4 superblock magic number
-#define EXT3_SUPER_MAGIC 0xEF53
+#define EXT3_SUPER_MAGIC 0xef53
 
 /**
  * EXT3 superblock structure
@@ -49,6 +52,6 @@ struct ext3_super_block {
  * @param sb The superblock to fill in
  * @return 0 on success, -1 on failure (check errno), -2 if the superblock is not valid
  */
-int read_ext3_super_block(FILE *file, int offset, struct ext3_super_block *sb);
+int read_ext3_super_block(FILE *file, off_t offset, struct ext3_super_block *sb);
 
 #endif

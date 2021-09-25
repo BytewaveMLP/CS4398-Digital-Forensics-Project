@@ -4,13 +4,13 @@ Project - Part 1
 Group 8: Eliot Partridge, Kent Templin
 */
 
+#include "superblock.h"
+
 #include <stdlib.h>
 #define _POSIX_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
-#include "superblock.h"
 
 #define DEFAULT_BLOCK_SIZE 4096
 
@@ -36,13 +36,13 @@ void print_superblock(struct ext3_super_block *sb) {
 	printf("\tMount count: %u\n", sb->s_mnt_count);
 	printf("\tMax mount count: %u\n", sb->s_max_mnt_count);
 	printf("\tMagic number: %x\n", sb->s_magic);
-	printf("\tState: %u\n", sb->s_state);
+	// printf("\tState: %u\n", sb->s_state);
 	printf("\tErrors: %u\n", sb->s_errors);
 	// printf("\tMinor revision level: %u\n", sb->s_minor_rev_level);
 	// printf("\tLast check time: %u\n", sb->s_last_check_time);
 	// printf("\tCheck interval: %u\n", sb->s_check_interval);
 	printf("\tOS: %u\n", sb->s_creator_os);
-	// printf("\tRevision level: %u\n", sb->s_rev_level);
+	printf("\tRevision: %u\n", sb->s_rev_level);
 	printf("\tDefault UID: %u\n", sb->s_def_resuid);
 	printf("\tDefault GID: %u\n", sb->s_def_resgid);
 }

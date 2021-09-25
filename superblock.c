@@ -1,8 +1,6 @@
-#include <stdio.h>
-
 #include "superblock.h"
 
-int read_ext3_super_block(FILE *file, int offset, struct ext3_super_block *sb) {
+int read_ext3_super_block(FILE *file, off_t offset, struct ext3_super_block *sb) {
 	if (fseek(file, offset, SEEK_SET) != 0) {
 		return -1;
 	}
