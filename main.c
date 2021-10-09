@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr, "Invalid superblock magic\n");
 				break;
 			default:
-				fprintf(stderr, "(%d): %s", indirectBlocksCount, strerror(errno));
+				fprintf(stderr, "(%zd): %s", indirectBlocksCount, strerror(errno));
 				break;
 		}
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("Found %zd indirect blocks\n", indirectBlocksCount);
-	for (size_t i = 0; i < indirectBlocksCount; i++) {
+	for (ssize_t i = 0; i < indirectBlocksCount; i++) {
 		printf("%d", indirectBlocks[i]);
 		if (i != indirectBlocksCount - 1) {
 			printf(", ");

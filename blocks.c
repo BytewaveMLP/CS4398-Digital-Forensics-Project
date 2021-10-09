@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -22,8 +23,8 @@ ssize_t find_indirect_blocks(int fd, int **blocks) {
 	uint64_t blockSize = 1024ll << superblock.s_log_block_size;
 	uint64_t blockCount = superblock.s_blocks_count;
 
-	debug_print("block size: %llu bytes\n", blockSize);
-	debug_print("block count: %llu blocks\n", blockCount);
+	debug_print("block size: %" PRIu64 " bytes\n", blockSize);
+	debug_print("block count: %" PRIu64 " blocks\n", blockCount);
 
 	size_t indirectBlockCount = 0;
 	size_t indirectBlocksSize = 1;
@@ -48,8 +49,8 @@ ssize_t find_indirect_blocks(int fd, int **blocks) {
 			if (blockData[i] - blockData[i-1] != 1) {
 				if (consecutiveBlockCount != 0 && consecutiveBlockCount < CONSECUTIVE_BLOCK_THRESHOLD) {
 					// this block probably isn't indirect; the last run was too short
-					debug_print("block %llu is probably not indirect\n"
-								"\tconsecutiveBlockCount = %llu < %llu\n", block, consecutiveBlockCount, CONSECUTIVE_BLOCK_THRESHOLD);
+					debug_print("block %" PRIu64 " is probably not indirect\n"
+								"\tconsecutiveBlockCount = %" PRIu64 " < %llu\n", block, consecutiveBlockCount, CONSECUTIVE_BLOCK_THRESHOLD);
 					goto next_block;
 				}
 				if (consecutiveBlockCount > maxConsecutiveBlockCount) {
@@ -64,8 +65,8 @@ ssize_t find_indirect_blocks(int fd, int **blocks) {
 
 		if (maxConsecutiveBlockCount >= CONSECUTIVE_BLOCK_THRESHOLD) {
 			// this block probably is indirect
-			debug_print("block %llu is probably indirect\n"
-						"\tconsecutiveBlockCount = %llu >= %llu\n", block, consecutiveBlockCount, CONSECUTIVE_BLOCK_THRESHOLD);
+			debug_print("block %" PRIu64 " is probably indirect\n"
+						"\tconsecutiveBlockCount = %" PRIu64 " >= %llu\n", block, consecutiveBlockCount, CONSECUTIVE_BLOCK_THRESHOLD);
 			indirectBlocks[indirectBlockCount++] = block;
 
 			if (indirectBlockCount == indirectBlocksSize) {
