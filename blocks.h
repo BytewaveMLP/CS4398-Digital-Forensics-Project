@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#define CONSECUTIVE_BLOCK_THRESHOLD 50
+#define CONSECUTIVE_BLOCK_THRESHOLD 3
 
 size_t find_indirect_blocks(int fd, int **blocks);
 

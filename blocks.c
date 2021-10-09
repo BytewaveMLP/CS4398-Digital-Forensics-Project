@@ -43,11 +43,15 @@ size_t find_indirect_blocks(int fd, int **blocks) {
 		}
 
 		uint64_t consecutiveBlockCount = 0;
+		uint64_t maxConsecutiveBlockCount = 0;
 		for (size_t i = 1; i < blockPointerCount; i++) {
 			if (blockData[i] - blockData[i-1] != 1) {
 				if (consecutiveBlockCount != 0 && consecutiveBlockCount < CONSECUTIVE_BLOCK_THRESHOLD) {
 					// this block probably isn't indirect
 					goto next_block;
+				}
+				if (consecutiveBlockCount > maxConsecutiveBlockCount) {
+					maxConsecutiveBlockCount = consecutiveBlockCount;
 				}
 				consecutiveBlockCount = 0;
 				continue;
@@ -56,7 +60,7 @@ size_t find_indirect_blocks(int fd, int **blocks) {
 			consecutiveBlockCount++;
 		}
 
-		if (consecutiveBlockCount >= CONSECUTIVE_BLOCK_THRESHOLD) {
+		if (maxConsecutiveBlockCount >= CONSECUTIVE_BLOCK_THRESHOLD) {
 			// this block probably is indirect
 			indirectBlocks[indirectBlockCount++] = block;
 
