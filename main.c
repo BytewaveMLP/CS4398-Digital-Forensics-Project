@@ -16,18 +16,32 @@ Group 22: Eliot Partridge
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
-		printf("Usage: %s <device or image file>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <device or image file>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	int devicefd;
 	if ((devicefd = open(argv[1], O_RDONLY)) < 0) {
-		printf("Error: Could not open file %s: %s\n", argv[1], strerror(errno));
+		fprintf(stderr, "Error: Could not open file %s: %s\n", argv[1], strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	int *indirectBlocks;
-	size_t indirectBlocksCount = find_indirect_blocks(devicefd, &indirectBlocks);
+	ssize_t indirectBlocksCount = find_indirect_blocks(devicefd, &indirectBlocks);
+	if (indirectBlocksCount < 0) {
+		fprintf(stderr, "Error: Failed to read disk: ");
+
+		switch(indirectBlocksCount) {
+			case -2:
+				fprintf(stderr, "Invalid superblock magic\n");
+				break;
+			default:
+				fprintf(stderr, "(%d): %s", indirectBlocksCount, strerror(errno));
+				break;
+		}
+
+		return EXIT_FAILURE;
+	}
 
 	printf("Found %zd indirect blocks\n", indirectBlocksCount);
 	for (size_t i = 0; i < indirectBlocksCount; i++) {
