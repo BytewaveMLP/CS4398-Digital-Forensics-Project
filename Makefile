@@ -1,15 +1,15 @@
-CC = gcc
-CFLAGS = -Wall -g -O0 -std=c99
+CFLAGS = -O2 -std=c99
 
 SRCS = superblock.c main.c blocks.c
-
 OBJS = $(SRCS:.c=.o)
-
 MAIN = indirect-blocks
 
 .PHONY: clean
 
 all: $(MAIN)
+
+debug: CFLAGS = -Wall -Wextra -Wpedantic -g -O0 -std=c99 -DDEBUG
+debug: $(MAIN)
 
 $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS)
