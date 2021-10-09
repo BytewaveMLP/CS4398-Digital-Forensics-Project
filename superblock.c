@@ -1,11 +1,11 @@
 #include "superblock.h"
 
-int read_ext3_super_block(FILE *file, off_t offset, struct ext3_super_block *sb) {
-	if (fseek(file, offset, SEEK_SET) != 0) {
+int read_ext3_super_block(int fd, off_t offset, struct ext3_super_block *sb) {
+	if (lseek(fd, offset, SEEK_SET) < 0) {
 		return -1;
 	}
 
-	if (fread(sb, sizeof(struct ext3_super_block), 1, file) != 1) {
+	if (read(fd, sb, sizeof(struct ext3_super_block)) != sizeof(struct ext3_super_block)) {
 		return -1;
 	}
 

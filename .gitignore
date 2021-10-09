@@ -1,3 +1,6 @@
 *.o
-superblock
+indirect-blocks
 *.zip
+peda-session-*.txt
+test-disk-*
+.gdb_history

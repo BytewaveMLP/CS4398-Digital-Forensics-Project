@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -g -O2 -std=c99
+CFLAGS = -Wall -g -O0 -std=c99
 
-SRCS = superblock.c main.c
+SRCS = superblock.c main.c blocks.c
 
 OBJS = $(SRCS:.c=.o)
 
-MAIN = superblock
+MAIN = indirect-blocks
 
 .PHONY: clean
 
@@ -14,7 +14,7 @@ all: $(MAIN)
 $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS)
 
-.c.o:
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

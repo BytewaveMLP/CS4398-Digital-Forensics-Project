@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
 
 // EXT2/3/4 superblock magic number
 #define EXT3_SUPER_MAGIC 0xef53
@@ -43,7 +44,6 @@ struct ext3_super_block {
 	uint16_t s_def_resgid;
 };
 
-
 /**
  * Read an EXT3 superblock from the given byte location on disk
  *
@@ -52,6 +52,6 @@ struct ext3_super_block {
  * @param sb The superblock to fill in
  * @return 0 on success, -1 on failure (check errno), -2 if the superblock is not valid
  */
-int read_ext3_super_block(FILE *file, off_t offset, struct ext3_super_block *sb);
+int read_ext3_super_block(int fd, off_t offset, struct ext3_super_block *sb);
 
 #endif

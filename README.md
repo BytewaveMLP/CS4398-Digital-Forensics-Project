@@ -1,4 +1,4 @@
-# CS 4398.001 Digital Forensics Project Part 1 - Reading EXT3 Superblocks
+# CS 4398.001 Digital Forensics Project Part 2 - Finding indirect blocks
 
 ## Group Members
 
