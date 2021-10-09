@@ -1,7 +1,7 @@
 /*
 CS 4398.001 Digital Forensics
 Project - Part 1
-Group 8: Eliot Partridge, Kent Templin
+Group 22: Eliot Partridge
 */
 
 #include "superblock.h"

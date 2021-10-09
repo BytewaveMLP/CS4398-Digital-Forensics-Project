@@ -2,7 +2,6 @@
 
 ## Group Members
 
-**Group 8**
+**Group 22**
 
 - Eliot Partridge
-- Kent Templin
