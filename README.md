@@ -1,4 +1,4 @@
-# CS 4398.001 Digital Forensics Project Part 2 - Finding indirect blocks
+# CS 4398.001 Digital Forensics Project Part 3 - Scan FS for Deleted Files
 
 ## Group Members
 
