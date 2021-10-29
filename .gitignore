@@ -1,5 +1,5 @@
 *.o
-indirect-blocks
+find-deleted-files
 *.zip
 peda-session-*.txt
 test-disk-*

@@ -5,14 +5,19 @@ Group 22: Eliot Partridge
 */
 
 #include "superblock.h"
-#include "blocks.h"
+#include "util.h"
 
 #include <stdlib.h>
 #define _POSIX_SOURCE
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <errno.h>
+
+uint8_t riffSignature[4] = {'R', 'I', 'F', 'F'};
+uint8_t aviSignature[4] = {'A', 'V', 'I', ' '};
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
@@ -26,31 +31,44 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	int *indirectBlocks;
-	ssize_t indirectBlocksCount = find_indirect_blocks(devicefd, &indirectBlocks);
-	if (indirectBlocksCount < 0) {
-		fprintf(stderr, "Error: Failed to read disk: ");
+	struct ext3_super_block sb;
 
-		switch(indirectBlocksCount) {
-			case -2:
-				fprintf(stderr, "Invalid superblock magic\n");
-				break;
-			default:
-				fprintf(stderr, "(%zd): %s", indirectBlocksCount, strerror(errno));
-				break;
-		}
+	int retval = read_ext3_super_block(devicefd, 1024, &sb);
 
+	if (retval == -1) {
+		printf("Could not read superblock: %s\n", strerror(errno));
+		return EXIT_FAILURE;
+	} else if (retval == -2) {
+		printf("Could not read superblock: Invalid magic number\n");
 		return EXIT_FAILURE;
 	}
 
-	printf("Found %zd indirect blocks\n", indirectBlocksCount);
-	for (ssize_t i = 0; i < indirectBlocksCount; i++) {
-		printf("%d", indirectBlocks[i]);
-		if (i != indirectBlocksCount - 1) {
-			printf(", ");
+	uint64_t blockSize = 1024llu << sb.s_log_block_size;
+	uint64_t blockCount = sb.s_blocks_count;
+	uint8_t *blockData = malloc(blockSize);
+
+	if (blockData == NULL) {
+		printf("Could not allocate memory for block data\n");
+		return EXIT_FAILURE;
+	}
+
+	for (uint64_t block = sb.s_first_data_block + 1; block < blockCount; block++) {
+		off_t offset = block * blockSize;
+		if (lseek(devicefd, offset, SEEK_SET) < 0) {
+			printf("Could not seek to block %" PRIu64 ": %s\n", block, strerror(errno));
+			return EXIT_FAILURE;
+		}
+		if (read(devicefd, blockData, blockSize) < 0) {
+			printf("Could not read block %" PRIu64 ": %s\n", block, strerror(errno));
+			return EXIT_FAILURE;
+		}
+		if (memcmp(blockData, riffSignature, 4) == 0) {
+			debug_print("Found RIFF file at block %" PRIu64 "\n", block);
+			if (memcmp(blockData + 8, aviSignature, 4) == 0) {
+				printf("Found AVI file at block %" PRIu64 "\n", block);
+			}
 		}
 	}
-	printf("\n");
 
 	return EXIT_SUCCESS;
 }

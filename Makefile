@@ -1,8 +1,8 @@
 CFLAGS = -O2 -std=c99
 
-SRCS = superblock.c main.c blocks.c
+SRCS = superblock.c main.c
 OBJS = $(SRCS:.c=.o)
-MAIN = indirect-blocks
+MAIN = find-deleted-files
 
 .PHONY: clean zip
 
