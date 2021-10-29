@@ -42,6 +42,20 @@ struct ext3_super_block {
 	uint32_t s_rev_level;
 	uint16_t s_def_resuid;
 	uint16_t s_def_resgid;
+	uint32_t s_first_ino;
+	uint16_t s_inode_size;
+	uint16_t s_block_group_nr;
+	uint32_t s_feature_compat;
+	uint32_t s_feature_incompat;
+	uint32_t s_feature_ro_compat;
+	uint8_t s_uuid[16];
+	uint8_t s_volume_name[16];
+	uint8_t s_last_mounted[64];
+	uint32_t s_algorithm_usage_bitmap;
+	uint8_t s_prealloc_blocks;
+	uint8_t s_prealloc_dir_blocks;
+	uint16_t s_padding1;
+	uint32_t s_reserved[204];
 };
 
 /**
