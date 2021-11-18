@@ -72,6 +72,8 @@ int main(int argc, char *argv[]) {
 	uint64_t blockCount = sb.s_blocks_count;
 	uint8_t blockData[blockSize];
 
+	uint8_t indirectBlockData[blockSize];
+
 	uint32_t expectedFileSize = 0;
 	uint64_t foundFileSize = 0;
 	uint64_t aviFileStartBlock = 0;
@@ -108,10 +110,28 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	if (write(outfd, blockData, blockSize) == -1) {
-		printf("Could not write block %" PRIu64 ": %s\n", aviFileStartBlock, strerror(errno));
-		return EXIT_FAILURE;
+	for (uint32_t i = 0; i < 12; i++) {
+		uint64_t block = aviFileStartBlock + i;
+		off_t offset = block * blockSize;
+
+		if (lseek(devicefd, offset, SEEK_SET) < 0) {
+			printf("Could not seek to block %" PRIu64 ": %s\n", block, strerror(errno));
+			return EXIT_FAILURE;
+		}
+		if (read(devicefd, blockData, blockSize) < 0) {
+			printf("Could not read block %" PRIu64 ": %s\n", block, strerror(errno));
+			return EXIT_FAILURE;
+		}
+		if (write(outfd, blockData, blockSize) == -1) {
+			printf("Could not write block %" PRIu64 ": %s\n", block, strerror(errno));
+			return EXIT_FAILURE;
+		}
+
+		foundFileSize += blockSize;
+		if (foundFileSize >= expectedFileSize) break;
 	}
+
+	if (foundFileSize >= expectedFileSize) goto end;
 
 	uint64_t *indirectBlocks = NULL;
 	ssize_t indirectBlockCount = find_indirect_blocks(devicefd, &indirectBlocks);
@@ -122,7 +142,6 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	uint8_t indirectBlockData[blockSize];
 	bool lastBlock = false;
 	uint64_t idx1Size = 0;
 	uint64_t idx1Offset = 0;

@@ -6,3 +6,4 @@ test-disk-*
 .gdb_history
 *.avi
 test-disk/*
+out.txt

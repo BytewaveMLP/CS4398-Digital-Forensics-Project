@@ -66,7 +66,7 @@ ssize_t find_indirect_blocks(int fd, uint64_t **blocks) {
 		if (maxConsecutiveBlockCount >= CONSECUTIVE_BLOCK_THRESHOLD) {
 			// this block probably is indirect
 			debug_print("block %" PRIu64 " is probably indirect\n"
-						"\tconsecutiveBlockCount = %" PRIu64 " >= %llu\n", block, consecutiveBlockCount, CONSECUTIVE_BLOCK_THRESHOLD);
+						"\tmaxConsecutiveBlockCount = %" PRIu64 " >= %llu\n", block, maxConsecutiveBlockCount, CONSECUTIVE_BLOCK_THRESHOLD);
 			indirectBlocks[indirectBlockCount++] = block;
 
 			if (indirectBlockCount == indirectBlocksSize) {
