@@ -15,5 +15,5 @@ $ make
 ## Running the Program
 
 ```
-$ ./recover-avi <block device>
+$ ./recover-avi <block device> <output file>
 ```

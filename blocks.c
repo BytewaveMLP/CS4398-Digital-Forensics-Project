@@ -11,7 +11,7 @@
 #include "blocks.h"
 #include "superblock.h"
 
-ssize_t find_indirect_blocks(int fd, int **blocks) {
+ssize_t find_indirect_blocks(int fd, uint64_t **blocks) {
 	struct ext3_super_block superblock;
 
 	// read initial superblock, always located at position 1024
@@ -28,7 +28,7 @@ ssize_t find_indirect_blocks(int fd, int **blocks) {
 
 	size_t indirectBlockCount = 0;
 	size_t indirectBlocksSize = 1;
-	int *indirectBlocks = malloc(sizeof(int) * indirectBlocksSize);
+	uint64_t *indirectBlocks = malloc(sizeof(uint64_t) * indirectBlocksSize);
 
 	for (uint64_t block = 1; block < blockCount; block++) {
 		size_t blockPointerCount = blockSize / sizeof(uint32_t);
@@ -71,8 +71,8 @@ ssize_t find_indirect_blocks(int fd, int **blocks) {
 
 			if (indirectBlockCount == indirectBlocksSize) {
 				indirectBlocksSize *= 2;
-				debug_print("realloc: %zu bytes\n", indirectBlocksSize * sizeof(int));
-				indirectBlocks = realloc(indirectBlocks, sizeof(int) * indirectBlocksSize);
+				debug_print("realloc: %zu bytes\n", indirectBlocksSize * sizeof(uint64_t));
+				indirectBlocks = realloc(indirectBlocks, sizeof(uint64_t) * indirectBlocksSize);
 			}
 		}
 

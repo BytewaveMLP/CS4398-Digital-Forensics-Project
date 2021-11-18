@@ -4,3 +4,5 @@ recover-avi
 peda-session-*.txt
 test-disk-*
 .gdb_history
+*.avi
+test-disk/*

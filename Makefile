@@ -1,6 +1,6 @@
 CFLAGS = -O2 -std=c99
 
-SRCS = superblock.c main.c
+SRCS = superblock.c main.c blocks.c util.c
 OBJS = $(SRCS:.c=.o)
 MAIN = recover-avi
 

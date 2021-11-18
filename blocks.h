@@ -6,6 +6,6 @@
 
 #define CONSECUTIVE_BLOCK_THRESHOLD 3ULL
 
-ssize_t find_indirect_blocks(int fd, int **blocks);
+ssize_t find_indirect_blocks(int fd, uint64_t **blocks);
 
 #endif
