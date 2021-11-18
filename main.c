@@ -16,6 +16,7 @@ Group 22: Eliot Partridge
 #include <stdint.h>
 #include <inttypes.h>
 #include <errno.h>
+#include <stdbool.h>
 
 uint8_t riffSignature[4] = {'R', 'I', 'F', 'F'};
 uint8_t aviSignature[4] = {'A', 'V', 'I', ' '};
@@ -122,6 +123,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	uint8_t indirectBlockData[blockSize];
+	bool lastBlock = false;
+	uint64_t idx1Size = 0;
+	uint64_t idx1Offset = 0;
 
 	debug_print("Found %zd indirect blocks\n", indirectBlockCount);
 	for (ssize_t i = 0; i < indirectBlockCount; i++) {
@@ -162,6 +166,18 @@ int main(int argc, char *argv[]) {
 					if (memcmp(marker, indirectBlockData + j, 4) == 0) {
 						debug_print("Found marker %c%c%c%c at block %" PRIu64 " offset %" PRIu64 "\n", marker[0], marker[1], marker[2], marker[3], block, j);
 						foundMarkerCount++;
+						if (i == markerCount - 1) {
+							// idx1
+							debug_print("Found idx1 at block %" PRIu64 " offset %" PRIu64 "\n", block, j);
+
+							idx1Offset = j;
+							idx1Size = *(uint32_t *)(indirectBlockData + j + 4);
+
+							debug_print("idx1 size is %" PRIu64 "\n", idx1Size);
+
+							lastBlock = true;
+							break;
+						}
 					}
 				}
 			}
@@ -170,15 +186,26 @@ int main(int argc, char *argv[]) {
 
 			if (foundMarkerCount > 0) {
 				debug_print("Saving potential AVI file block %" PRIu32 "...\n", *blockOffset);
-				if (write(outfd, indirectBlockData, blockSize) == -1) {
+
+				uint64_t dataSize = blockSize;
+
+				if (lastBlock) {
+					dataSize = idx1Offset + idx1Size + 4;
+				}
+
+				if (write(outfd, indirectBlockData, dataSize) == -1) {
 					printf("Could not write block %" PRIu32 ": %s\n", *blockOffset, strerror(errno));
 					return EXIT_FAILURE;
 				}
-				foundFileSize += blockSize;
+				foundFileSize += dataSize;
 				debug_print("Expected file size is now %" PRIu32 "\n", expectedFileSize);
+
+				if (lastBlock) goto end;
 			}
 		}
 	}
+
+	end:;
 
 	int64_t diff = expectedFileSize - foundFileSize;
 
