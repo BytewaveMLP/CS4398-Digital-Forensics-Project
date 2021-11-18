@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		foundFileSize += blockSize;
-		if (foundFileSize >= expectedFileSize) break;
+		if (foundFileSize >= expectedFileSize - blockSize) break;
 	}
 
 	if (foundFileSize >= expectedFileSize) goto end;
