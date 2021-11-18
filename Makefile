@@ -11,8 +11,8 @@ all: $(MAIN)
 debug: CFLAGS = -Wall -Wextra -Wpedantic -g -O0 -std=c99 -DDEBUG
 debug: $(MAIN)
 
-zip: screenshots/* debug
-	zip -r cs4398-project-part$${PARTNO:?}-group22.zip *.c *.h Makefile README.md screenshots/
+zip: debug
+	zip -r cs4398-project-part$${PARTNO:?}-group22.zip *.c *.h Makefile README.md
 
 $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS)
