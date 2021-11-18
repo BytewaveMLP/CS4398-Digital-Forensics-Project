@@ -18,6 +18,8 @@ Group 22: Eliot Partridge
 #include <errno.h>
 #include <stdbool.h>
 
+#define SIGNIFICANT_MARKER_COUNT 32ULL
+
 uint8_t riffSignature[4] = {'R', 'I', 'F', 'F'};
 uint8_t aviSignature[4] = {'A', 'V', 'I', ' '};
 
@@ -142,7 +144,7 @@ int main(int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	bool lastBlock = false;
+	uint64_t idxBlock = 0;
 	uint64_t idx1Size = 0;
 	uint64_t idx1Offset = 0;
 
@@ -162,6 +164,8 @@ int main(int argc, char *argv[]) {
 			return EXIT_FAILURE;
 		}
 
+		unsigned long int foundMarkerCount = 0;
+
 		for (uint64_t indirectBlockOffset = 0; indirectBlockOffset < blockSize; indirectBlockOffset += 4) {
 			uint32_t *blockOffset = (uint32_t *)(blockData + indirectBlockOffset);
 			if (*blockOffset == 0) break;
@@ -177,8 +181,6 @@ int main(int argc, char *argv[]) {
 				return EXIT_FAILURE;
 			}
 
-			unsigned long int foundMarkerCount = 0;
-
 			for (size_t i = 0; i < markerCount; i++) {
 				uint8_t *marker = interestingMarkers + (i * 4);
 				for (uint64_t j = 0; j < blockSize; j++) {
@@ -189,38 +191,49 @@ int main(int argc, char *argv[]) {
 							// idx1
 							debug_print("Found idx1 at block %" PRIu64 " offset %" PRIu64 "\n", block, j);
 
+							idxBlock = *blockOffset;
 							idx1Offset = j;
 							idx1Size = *(uint32_t *)(indirectBlockData + j + 4);
 
 							debug_print("idx1 size is %" PRIu64 "\n", idx1Size);
-
-							lastBlock = true;
-							break;
 						}
 					}
 				}
 			}
+		}
 
-			debug_print("Found %lu interesting markers\n", foundMarkerCount);
+		if (foundMarkerCount <= SIGNIFICANT_MARKER_COUNT) {
+			debug_print("Skipping block %" PRIu64 " (found %lu markers)\n", block, foundMarkerCount);
+			continue;
+		}
 
-			if (foundMarkerCount > 0) {
-				debug_print("Saving potential AVI file block %" PRIu32 "...\n", *blockOffset);
+		debug_print("Indirect block %" PRIu64 " probably belongs to our AVI file (found %lu markers)\n", block, foundMarkerCount);
 
-				uint64_t dataSize = blockSize;
+		for (uint64_t indirectBlockOffset = 0; indirectBlockOffset < blockSize; indirectBlockOffset += 4) {
+			uint32_t blockOffset = *(uint32_t *)(blockData + indirectBlockOffset);
+			if (blockOffset == 0) break;
 
-				if (lastBlock) {
-					dataSize = idx1Offset + idx1Size + 4;
-				}
-
-				if (write(outfd, indirectBlockData, dataSize) == -1) {
-					printf("Could not write block %" PRIu32 ": %s\n", *blockOffset, strerror(errno));
-					return EXIT_FAILURE;
-				}
-				foundFileSize += dataSize;
-				debug_print("Expected file size is now %" PRIu32 "\n", expectedFileSize);
-
-				if (lastBlock) goto end;
+			if (lseek(devicefd, blockOffset * blockSize, SEEK_SET) < 0) {
+				printf("Could not seek to block %" PRIu64 ": %s\n", block, strerror(errno));
+				return EXIT_FAILURE;
 			}
+			if (read(devicefd, indirectBlockData, blockSize) < 0) {
+				printf("Could not read block %" PRIu64 ": %s\n", block, strerror(errno));
+				return EXIT_FAILURE;
+			}
+
+			uint64_t dataSize = blockSize;
+			if (blockOffset == idxBlock) {
+				dataSize = idx1Offset + idx1Size + 4;
+			}
+
+			if (write(outfd, indirectBlockData, dataSize) == -1) {
+				printf("Could not write block %" PRIu64 ": %s\n", block, strerror(errno));
+				return EXIT_FAILURE;
+			}
+
+			foundFileSize += dataSize;
+			if (foundFileSize >= expectedFileSize - blockSize) goto end;
 		}
 	}
 
