@@ -1,5 +1,5 @@
 *.o
-find-deleted-files
+recover-avi
 *.zip
 peda-session-*.txt
 test-disk-*

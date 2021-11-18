@@ -2,7 +2,7 @@ CFLAGS = -O2 -std=c99
 
 SRCS = superblock.c main.c
 OBJS = $(SRCS:.c=.o)
-MAIN = find-deleted-files
+MAIN = recover-avi
 
 .PHONY: clean zip
 
